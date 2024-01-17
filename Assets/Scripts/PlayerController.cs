@@ -11,6 +11,32 @@ public class PlayerController : MonoBehaviour
     private bool isWalking;
     private Vector3 lastInteractDir;
 
+    private void /// <summary>
+    /// Start is called on the frame when a script is enabled just before
+    /// any of the Update methods is called the first time.
+    /// </summary>
+     Start() {
+        gameInput.OnInteractAction += GameInput_OnInterAction;
+    }
+
+    private void GameInput_OnInterAction(object sender, System.EventArgs e) {
+        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
+
+        if (moveDir != Vector3.zero) {
+            lastInteractDir = moveDir;
+        }
+
+        float interactDistance = 2f;
+
+        if (Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactDistance, counterLayerMask)) {
+            if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter)) {
+                // Has ClearCounter
+                clearCounter.Interact();
+            }
+        }
+    }
+
     private void Update() {
         HandleMovement();
         HandleInteractions();
@@ -33,7 +59,6 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactDistance, counterLayerMask)) {
             if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter)) {
                 // Has ClearCounter
-                clearCounter.Interact();
             }
         }
     }
