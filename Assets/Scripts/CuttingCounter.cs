@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClearCounter : BaseCounter
+public class CuttingCounter : BaseCounter
 {
-    [SerializeField] private KitchenObjectSO kitchenObjectSO;
+    [SerializeField] private KitchenObjectSO cuttingObjectSO;
 
-    public override void Interact(PlayerController playerController) {
+    public override void Interact(PlayerController playerController)
+    {
         if (!HasKitchenObject()) {
             // There is no KitchenObject here
             if (playerController.HasKitchenObject()) {
@@ -23,6 +24,15 @@ public class ClearCounter : BaseCounter
                 // Player is not carrying anything
                 GetKitchenObject().SetKitchenObjectParent(playerController);
             }
+        }
+    }
+
+    public override void InteractAlternate(PlayerController playerController) {
+        if (HasKitchenObject()) {
+            // There is a KitchenObject here
+            GetKitchenObject().DestroySelf();
+
+            KitchenObject.SpawnKitchenObject(cuttingObjectSO, this);
         }
     }
 }
