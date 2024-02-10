@@ -1207,6 +1207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8e6915e071746d4e83ee83aafae1bc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainMenuButton: {fileID: 408566261}
   recipesDeliveredText: {fileID: 1588956927}
 --- !u!1 &239448384
 GameObject:
