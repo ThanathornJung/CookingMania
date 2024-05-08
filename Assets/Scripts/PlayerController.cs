@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour, IKitchenObjectParent
+public class PlayerController : NetworkBehaviour, IKitchenObjectParent
 {
-    public static PlayerController Instance { get; private set; }
+    //public static PlayerController Instance { get; private set; }
+
 
     public event EventHandler OnPickedSomething;
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChange;
@@ -14,7 +16,6 @@ public class PlayerController : MonoBehaviour, IKitchenObjectParent
     }
 
     [SerializeField] private float moveSpeed = 7f;
-    [SerializeField] private GameInput gameInput;
     [SerializeField] private LayerMask counterLayerMask;
     [SerializeField] private Transform kitchenObjectHoldPoint; 
 
@@ -28,10 +29,7 @@ public class PlayerController : MonoBehaviour, IKitchenObjectParent
     /// </summary>
      Awake()
     {
-        if (Instance != null) {
-            Debug.Log("There is more than one PlayerController instance");
-        }
-        Instance = this;
+        //Instance = this;
     }
 
     private void /// <summary>
@@ -39,8 +37,8 @@ public class PlayerController : MonoBehaviour, IKitchenObjectParent
     /// any of the Update methods is called the first time.
     /// </summary>
      Start() {
-        gameInput.OnInteractAction += GameInput_OnInterAction;
-        gameInput.OnInteractAlternateAction += GameInput_OnInterAlternateAction;
+        GameInput.Instance.OnInteractAction += GameInput_OnInterAction;
+        GameInput.Instance.OnInteractAlternateAction += GameInput_OnInterAlternateAction;
     }
 
     private void GameInput_OnInterAlternateAction(object sender, System.EventArgs e) {
@@ -60,6 +58,11 @@ public class PlayerController : MonoBehaviour, IKitchenObjectParent
     }
 
     private void Update() {
+        if (!IsOwner) {
+            return;
+        }
+        
+        
         HandleMovement();
         HandleInteractions();
     }
@@ -69,7 +72,7 @@ public class PlayerController : MonoBehaviour, IKitchenObjectParent
     }
 
     private void HandleInteractions() {
-        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        Vector2 inputVector = GameInput.Instance.GetMovementVectorNormalized();
         Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
 
         if (moveDir != Vector3.zero) {
@@ -93,7 +96,7 @@ public class PlayerController : MonoBehaviour, IKitchenObjectParent
     }
 
     private void HandleMovement() {
-        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        Vector2 inputVector = GameInput.Instance.GetMovementVectorNormalized();
         Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
 
         float moveDistance = moveSpeed * Time.deltaTime;
