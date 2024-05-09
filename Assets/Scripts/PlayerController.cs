@@ -6,7 +6,14 @@ using UnityEngine;
 
 public class PlayerController : NetworkBehaviour, IKitchenObjectParent
 {
-    //public static PlayerController Instance { get; private set; }
+    public static event EventHandler OnAnyPlayerSpawned;
+    public static event EventHandler OnAnyPickedSomething;
+
+    public static void ResetStaticData() {
+        OnAnyPlayerSpawned = null;
+    }
+
+    public static PlayerController LocalInstance { get; private set; }
 
 
     public event EventHandler OnPickedSomething;
@@ -39,6 +46,15 @@ public class PlayerController : NetworkBehaviour, IKitchenObjectParent
      Start() {
         GameInput.Instance.OnInteractAction += GameInput_OnInterAction;
         GameInput.Instance.OnInteractAlternateAction += GameInput_OnInterAlternateAction;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if(IsOwner) {
+            LocalInstance = this;
+        }
+
+        OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
     }
 
     private void GameInput_OnInterAlternateAction(object sender, System.EventArgs e) {
@@ -156,6 +172,7 @@ public class PlayerController : NetworkBehaviour, IKitchenObjectParent
 
         if (kitchenObject != null) {
             OnPickedSomething?.Invoke(this, EventArgs.Empty);
+            OnAnyPickedSomething?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -169,5 +186,9 @@ public class PlayerController : NetworkBehaviour, IKitchenObjectParent
 
     public bool HasKitchenObject() {
         return kitchenObject != null;
+    }
+
+    public NetworkObject GetNetworkObject() {
+        return NetworkObject;
     }
 }
